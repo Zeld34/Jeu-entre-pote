@@ -134,7 +134,7 @@ function handle(id,m){
   }else if(m.t==='answer'&&g.phase==='answer'&&g.parts.includes(id)&&!(id in g.answers)){
     if(g.mode==='single'){if(!g.parts.includes(m.v))return;g.answers[id]=m.v}
     else{
-      const o=g.parts.filter(x=>x!==id),v=Array.isArray(m.v)?m.v:[];
+      const o=g.parts,v=Array.isArray(m.v)?m.v:[];
       if(v.length!==o.length||new Set(v).size!==v.length||!v.every(x=>o.includes(x)))return;
       g.answers[id]=v;
     }
@@ -182,7 +182,7 @@ function game(){
     h+=isA?`<div class="card"><h2>À toi de poser la question</h2>
       <textarea id="qtxt" maxlength="140" placeholder="Qui est le plus susceptible de rater son train ?">${esc(L.q)}</textarea>
       <button class="opt ${L.mode==='single'?'on':''}" data-a="mode" data-v="single">🎯 Un seul nom<br><small>Chacun désigne un joueur.</small></button>
-      <button class="opt ${L.mode==='rank'?'on':''}" data-a="mode" data-v="rank">📊 Classement<br><small>Chacun classe les autres joueurs, du plus au moins.</small></button>
+      <button class="opt ${L.mode==='rank'?'on':''}" data-a="mode" data-v="rank">📊 Classement<br><small>Chacun classe tous les joueurs, lui-même compris, du plus au moins.</small></button>
       <button class="go" data-a="ask">Lancer la question</button></div>`
     :`<div class="card"><h2>${nm(s.asker)} rédige sa question…</h2><p class="mut">Ça arrive.</p></div>`;
   }else{
@@ -196,10 +196,10 @@ function game(){
         h+=`<div class="card"><h2>Ta réponse</h2>${s.parts.map(i=>`<button class="opt ${L.pick===i?'on':''}" data-a="pick" data-v="${esc(i)}">${nm(i)}${i===me?' (toi)':''}</button>`).join('')}
         <button class="go" data-a="send" ${L.pick?'':'disabled'}>Valider</button></div>`;
       }else{
-        const left=s.parts.filter(i=>i!==me&&!L.rank.includes(i));
+        const left=s.parts.filter(i=>!L.rank.includes(i));
         h+=`<div class="card"><h2>Ton classement</h2><p class="mut">Touche les joueurs dans l’ordre : du plus au moins.</p>
-        ${L.rank.map((i,k)=>`<button class="opt on" data-a="rdel" data-v="${esc(i)}">${k+1}. ${nm(i)} ✕</button>`).join('')}
-        ${left.map(i=>`<button class="opt" data-a="radd" data-v="${esc(i)}">${nm(i)}</button>`).join('')}
+        ${L.rank.map((i,k)=>`<button class="opt on" data-a="rdel" data-v="${esc(i)}">${k+1}. ${nm(i)}${i===me?' (toi)':''} ✕</button>`).join('')}
+        ${left.map(i=>`<button class="opt" data-a="radd" data-v="${esc(i)}">${nm(i)}${i===me?' (toi)':''}</button>`).join('')}
         <button class="go" data-a="send" ${left.length?'disabled':''}>Valider</button></div>`;
       }
     }else{
